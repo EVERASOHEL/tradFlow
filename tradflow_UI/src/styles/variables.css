@@ -1,0 +1,63 @@
+:root {
+  /* Color: a ledger-book palette — ink, paper, and a single "in the black" green.
+     Status colors are muted, not stock red/green, so they read as considered
+     rather than default traffic-light UI. */
+  --color-ink: #1b2430;
+  --color-ink-soft: #3c4655;
+  --color-paper: #f4f2ec;
+  --color-paper-raised: #ffffff;
+  --color-line: #d9d3c4;
+  --color-line-strong: #b9b09a;
+
+  --color-primary: #245b9c;
+  --color-primary-dark: #173f70;
+  --color-primary-tint: #e7f0fb;
+
+  --color-amber: #a97a2f;
+  --color-amber-tint: #f3ead7;
+
+  --color-brick: #8c3b3b;
+  --color-brick-tint: #f4e6e4;
+
+  --color-muted: #6a6357;
+
+  /* Type: a document-like serif for headings, a legible grotesque for UI/body.
+     Numbers use tabular-nums throughout so figures line up in tables. */
+  --font-display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-md: 1.0625rem;
+  --text-lg: 1.375rem;
+  --text-xl: 1.875rem;
+  --text-2xl: 2.5rem;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  --radius-sm: 3px;
+  --radius-md: 4px;
+
+  --border-hairline: 1px solid var(--color-line);
+  --border-hairline-strong: 1px solid var(--color-line-strong);
+
+  --focus-ring: 0 0 0 2px var(--color-paper), 0 0 0 4px var(--color-primary);
+
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+  }
+}

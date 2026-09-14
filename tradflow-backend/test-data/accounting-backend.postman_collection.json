@@ -1,0 +1,294 @@
+{
+  "info": {
+    "name": "Accounting Backend API",
+    "description": "End-to-end collection for auth, users, roles, permissions, and companies. Run 'Login' first to auto-populate {{access_token}}.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8080" },
+    { "key": "access_token", "value": "" },
+    { "key": "refresh_token", "value": "" },
+    { "key": "company_id", "value": "11111111-1111-1111-1111-111111111111" },
+    { "key": "admin_role_id", "value": "31111111-1111-1111-1111-111111111101" },
+    { "key": "accountant_role_id", "value": "31111111-1111-1111-1111-111111111102" },
+    { "key": "user_view_permission_id", "value": "21111111-1111-1111-1111-111111111104" },
+    { "key": "admin_user_id", "value": "41111111-1111-1111-1111-111111111101" },
+    { "key": "created_user_id", "value": "" },
+    { "key": "created_role_id", "value": "" },
+    { "key": "created_permission_id", "value": "" },
+    { "key": "created_company_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const json = pm.response.json();",
+                "if (json.data) {",
+                "  pm.collectionVariables.set('access_token', json.data.accessToken);",
+                "  pm.collectionVariables.set('refresh_token', json.data.refreshToken);",
+                "}"
+              ]
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"Admin@123\"\n}" },
+            "url": "{{base_url}}/api/auth/login"
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}" },
+            "url": "{{base_url}}/api/auth/refresh"
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"currentPassword\": \"Admin@123\",\n  \"newPassword\": \"NewAdmin@456\"\n}" },
+            "url": "{{base_url}}/api/auth/change-password"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Companies",
+      "item": [
+        {
+          "name": "Create Company",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "const json = pm.response.json();",
+              "if (json.data) { pm.collectionVariables.set('created_company_id', json.data.id); }"
+            ] }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"companyCode\": \"ACME001\",\n  \"companyName\": \"Acme Industries Pvt Ltd\",\n  \"tradeName\": \"Acme Industries\",\n  \"gstin\": \"24ACMEP1234A1Z5\",\n  \"pan\": \"ACMEP1234A\",\n  \"email\": \"accounts@acme.example\",\n  \"phone\": \"+91-9876543210\",\n  \"addressLine1\": \"Plot 45, GIDC Industrial Estate\",\n  \"city\": \"Ahmedabad\",\n  \"stateId\": 24,\n  \"pincode\": \"382330\",\n  \"country\": \"India\",\n  \"currencyCode\": \"INR\",\n  \"financialYearStart\": \"2026-04-01\",\n  \"active\": true\n}" },
+            "url": "{{base_url}}/api/companies"
+          }
+        },
+        { "name": "Get All Companies", "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": "{{base_url}}/api/companies"
+        }},
+        { "name": "Get Company By Id", "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": "{{base_url}}/api/companies/{{company_id}}"
+        }},
+        { "name": "Update Company", "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"companyCode\": \"ACME001\",\n  \"companyName\": \"Acme Industries Private Limited\",\n  \"email\": \"finance@acme.example\",\n  \"active\": true\n}" },
+            "url": "{{base_url}}/api/companies/{{created_company_id}}"
+        }},
+        { "name": "Assign User To Company", "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"userId\": \"{{admin_user_id}}\",\n  \"companyId\": \"{{created_company_id}}\",\n  \"isDefault\": false\n}" },
+            "url": "{{base_url}}/api/companies/assign-user"
+        }},
+        { "name": "Get Companies For User", "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": "{{base_url}}/api/companies/for-user/{{admin_user_id}}"
+        }},
+        { "name": "Delete (Deactivate) Company", "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": "{{base_url}}/api/companies/{{created_company_id}}"
+        }}
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Create User",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "const json = pm.response.json();",
+              "if (json.data) { pm.collectionVariables.set('created_user_id', json.data.id); }"
+            ] }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"jdoe\",\n  \"email\": \"jdoe@acme.example\",\n  \"password\": \"SecurePass@123\",\n  \"fullName\": \"John Doe\",\n  \"phone\": \"+91-9123456780\",\n  \"active\": true\n}" },
+            "url": "{{base_url}}/api/users"
+          }
+        },
+        { "name": "Get All Users", "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": "{{base_url}}/api/users"
+        }},
+        { "name": "Get User By Id", "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": "{{base_url}}/api/users/{{created_user_id}}"
+        }},
+        { "name": "Update User", "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"john.doe@acme.example\",\n  \"fullName\": \"John A. Doe\",\n  \"active\": true,\n  \"accountLocked\": false\n}" },
+            "url": "{{base_url}}/api/users/{{created_user_id}}"
+        }},
+        { "name": "Assign Role To User", "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"roleId\": \"{{accountant_role_id}}\"\n}" },
+            "url": "{{base_url}}/api/users/{{created_user_id}}/roles"
+        }},
+        { "name": "Delete (Deactivate) User", "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": "{{base_url}}/api/users/{{created_user_id}}"
+        }}
+      ]
+    },
+    {
+      "name": "Roles",
+      "item": [
+        {
+          "name": "Create Role",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "const json = pm.response.json();",
+              "if (json.data) { pm.collectionVariables.set('created_role_id', json.data.id); }"
+            ] }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"code\": \"AUDITOR\",\n  \"name\": \"Auditor\",\n  \"description\": \"Read-only access for audits\",\n  \"active\": true\n}" },
+            "url": "{{base_url}}/api/roles"
+          }
+        },
+        { "name": "Get All Roles", "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": "{{base_url}}/api/roles"
+        }},
+        { "name": "Get Role By Id", "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": "{{base_url}}/api/roles/{{created_role_id}}"
+        }},
+        { "name": "Update Role", "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"code\": \"AUDITOR\",\n  \"name\": \"Auditor\",\n  \"description\": \"Read-only access for external and internal audits\",\n  \"active\": true\n}" },
+            "url": "{{base_url}}/api/roles/{{created_role_id}}"
+        }},
+        { "name": "Assign Permission To Role", "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"permissionId\": \"{{user_view_permission_id}}\"\n}" },
+            "url": "{{base_url}}/api/roles/{{created_role_id}}/permissions"
+        }},
+        { "name": "Delete (Deactivate) Role", "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": "{{base_url}}/api/roles/{{created_role_id}}"
+        }}
+      ]
+    },
+    {
+      "name": "Permissions",
+      "item": [
+        {
+          "name": "Create Permission",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "const json = pm.response.json();",
+              "if (json.data) { pm.collectionVariables.set('created_permission_id', json.data.id); }"
+            ] }
+          }],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"code\": \"INVOICE_CREATE\",\n  \"name\": \"Create Invoice\",\n  \"module\": \"SALES\",\n  \"description\": \"Allows creating new sales invoices\",\n  \"active\": true\n}" },
+            "url": "{{base_url}}/api/permissions"
+          }
+        },
+        { "name": "Get All Permissions", "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": "{{base_url}}/api/permissions"
+        }},
+        { "name": "Get Permission By Id", "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": "{{base_url}}/api/permissions/{{created_permission_id}}"
+        }},
+        { "name": "Update Permission", "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"code\": \"INVOICE_CREATE\",\n  \"name\": \"Create Sales Invoice\",\n  \"module\": \"SALES\",\n  \"description\": \"Allows creating new sales invoices\",\n  \"active\": true\n}" },
+            "url": "{{base_url}}/api/permissions/{{created_permission_id}}"
+        }},
+        { "name": "Delete (Deactivate) Permission", "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": "{{base_url}}/api/permissions/{{created_permission_id}}"
+        }}
+      ]
+    }
+  ]
+}

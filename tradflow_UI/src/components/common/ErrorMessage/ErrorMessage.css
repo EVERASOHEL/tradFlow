@@ -1,0 +1,8 @@
+.error-banner {
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-brick-tint);
+  border-left: 3px solid var(--color-brick);
+  color: var(--color-ink);
+  font-size: var(--text-sm);
+  border-radius: var(--radius-sm);
+}

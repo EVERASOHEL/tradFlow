@@ -1,0 +1,18 @@
+{
+  "companyCode": "ACME001",
+  "companyName": "Acme Industries Pvt Ltd",
+  "tradeName": "Acme Industries",
+  "gstin": "24ACMEP1234A1Z5",
+  "pan": "ACMEP1234A",
+  "email": "accounts@acme.example",
+  "phone": "+91-9876543210",
+  "addressLine1": "Plot 45, GIDC Industrial Estate",
+  "addressLine2": "Naroda",
+  "city": "Ahmedabad",
+  "stateId": 24,
+  "pincode": "382330",
+  "country": "India",
+  "currencyCode": "INR",
+  "financialYearStart": "2026-04-01",
+  "active": true
+}

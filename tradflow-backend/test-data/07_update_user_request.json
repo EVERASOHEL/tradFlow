@@ -1,0 +1,7 @@
+{
+  "email": "john.doe@acme.example",
+  "fullName": "John A. Doe",
+  "phone": "+91-9123456780",
+  "active": true,
+  "accountLocked": false
+}

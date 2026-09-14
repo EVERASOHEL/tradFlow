@@ -1,0 +1,7 @@
+{
+  "code": "INVOICE_CREATE",
+  "name": "Create Invoice",
+  "module": "SALES",
+  "description": "Allows creating new sales invoices",
+  "active": true
+}

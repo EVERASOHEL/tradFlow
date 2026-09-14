@@ -1,0 +1,22 @@
+.loader {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+
+.loader__mark {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--color-line);
+  border-top-color: var(--color-primary);
+  animation: loader-spin 700ms linear infinite;
+}
+
+@keyframes loader-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

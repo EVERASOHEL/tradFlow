@@ -1,0 +1,8 @@
+{
+  "username": "jdoe",
+  "email": "jdoe@acme.example",
+  "password": "SecurePass@123",
+  "fullName": "John Doe",
+  "phone": "+91-9123456780",
+  "active": true
+}

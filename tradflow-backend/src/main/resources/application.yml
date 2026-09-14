@@ -1,0 +1,47 @@
+server:
+  port: 8889
+
+spring:
+  application:
+    name: accounting-backend
+
+  datasource:
+    url: jdbc:postgresql://localhost:5433/tradeflow_db
+    username: postgres
+    password: root
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      # schema is owned by Flyway migrations (db/migration); Hibernate only validates it matches
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+app:
+  jwt:
+    secret: "CHANGE_ME_TO_A_LONG_RANDOM_BASE64_SECRET_MIN_256_BITS_1234567890"
+    access-token-expiry-ms: 3600000      # 1 hour
+    refresh-token-expiry-ms: 604800000   # 7 days
+    issuer: accounting-backend
+
+logging:
+  level:
+    org.springframework.security: INFO
+    com.tradflow.accounting: DEBUG
