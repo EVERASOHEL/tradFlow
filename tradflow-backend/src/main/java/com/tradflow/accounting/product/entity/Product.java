@@ -14,9 +14,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.UUID;
 
 @Getter
@@ -94,11 +97,136 @@ public class Product extends Auditable {
     @Column(name = "maximum_stock", precision = 18, scale = 3)
     private BigDecimal maximumStock;
 
+    @Builder.Default
+    @Column(name = "current_stock", nullable = false, precision = 18, scale = 3)
+    private BigDecimal currentStock = BigDecimal.ZERO;
+
     @Column(name = "description")
     private String description;
 
     @Builder.Default
     @Column(name = "active", nullable = false)
     private Boolean active = true;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "specifications", columnDefinition = "jsonb")
+    private Map<String, Object> specifications;
+
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> getPackagingConfiguration() {
+        if (specifications == null) return null;
+        if (specifications.get("packagingConfiguration") instanceof Map) {
+            return (Map<String, Object>) specifications.get("packagingConfiguration");
+        }
+        if (specifications.get("packagingAndDimensions") instanceof Map) {
+            return (Map<String, Object>) specifications.get("packagingAndDimensions");
+        }
+        return null;
+    }
+
+    public Integer getPiecesPerBox() {
+        Map<String, Object> pkg = getPackagingConfiguration();
+        if (pkg != null && pkg.get("piecesPerBox") != null) {
+            Object val = pkg.get("piecesPerBox");
+            if (val instanceof Number) return ((Number) val).intValue();
+            try { return Integer.parseInt(val.toString()); } catch (Exception ignored) {}
+        }
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public BigDecimal getBoxLength() {
+        Map<String, Object> pkg = getPackagingConfiguration();
+        if (pkg != null) {
+            if (pkg.get("boxLength") != null) {
+                try { return new BigDecimal(pkg.get("boxLength").toString()); } catch (Exception ignored) {}
+            }
+            if (pkg.get("boxDimensions") instanceof Map) {
+                Object val = ((Map<String, Object>) pkg.get("boxDimensions")).get("length");
+                if (val != null) {
+                    try { return new BigDecimal(val.toString()); } catch (Exception ignored) {}
+                }
+            }
+        }
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public BigDecimal getBoxWidth() {
+        Map<String, Object> pkg = getPackagingConfiguration();
+        if (pkg != null) {
+            if (pkg.get("boxWidth") != null) {
+                try { return new BigDecimal(pkg.get("boxWidth").toString()); } catch (Exception ignored) {}
+            }
+            if (pkg.get("boxDimensions") instanceof Map) {
+                Object val = ((Map<String, Object>) pkg.get("boxDimensions")).get("width");
+                if (val != null) {
+                    try { return new BigDecimal(val.toString()); } catch (Exception ignored) {}
+                }
+            }
+        }
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public BigDecimal getBoxHeight() {
+        Map<String, Object> pkg = getPackagingConfiguration();
+        if (pkg != null) {
+            if (pkg.get("boxHeight") != null) {
+                try { return new BigDecimal(pkg.get("boxHeight").toString()); } catch (Exception ignored) {}
+            }
+            if (pkg.get("boxDimensions") instanceof Map) {
+                Object val = ((Map<String, Object>) pkg.get("boxDimensions")).get("height");
+                if (val != null) {
+                    try { return new BigDecimal(val.toString()); } catch (Exception ignored) {}
+                }
+            }
+        }
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public String getDimensionUnit() {
+        Map<String, Object> pkg = getPackagingConfiguration();
+        if (pkg != null) {
+            if (pkg.get("boxDimensionUnit") != null) return pkg.get("boxDimensionUnit").toString();
+            if (pkg.get("dimensionUnit") != null) return pkg.get("dimensionUnit").toString();
+            if (pkg.get("boxDimensions") instanceof Map) {
+                Object val = ((Map<String, Object>) pkg.get("boxDimensions")).get("unit");
+                if (val != null) return val.toString();
+            }
+        }
+        return "cm";
+    }
+
+    public BigDecimal getNetWeight() {
+        Map<String, Object> pkg = getPackagingConfiguration();
+        if (pkg != null && pkg.get("pieceNetWeight") != null) {
+            try { return new BigDecimal(pkg.get("pieceNetWeight").toString()); } catch (Exception ignored) {}
+        }
+        return null;
+    }
+
+    public BigDecimal getGrossWeight() {
+        Map<String, Object> pkg = getPackagingConfiguration();
+        if (pkg != null) {
+            if (pkg.get("boxGrossWeight") != null) {
+                try { return new BigDecimal(pkg.get("boxGrossWeight").toString()); } catch (Exception ignored) {}
+            }
+            if (pkg.get("grossWeight") != null) {
+                try { return new BigDecimal(pkg.get("grossWeight").toString()); } catch (Exception ignored) {}
+            }
+        }
+        return null;
+    }
+
+    public String getWeightUnit() {
+        Map<String, Object> pkg = getPackagingConfiguration();
+        if (pkg != null) {
+            if (pkg.get("boxWeightUnit") != null) return pkg.get("boxWeightUnit").toString();
+            if (pkg.get("weightUnit") != null) return pkg.get("weightUnit").toString();
+        }
+        return "kg";
+    }
 }
 

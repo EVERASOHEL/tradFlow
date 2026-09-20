@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import Button from "../../../components/common/Button/Button";
 import ErrorMessage from "../../../components/common/ErrorMessage/ErrorMessage";
 import Loader from "../../../components/common/Loader/Loader";
@@ -15,6 +15,7 @@ import {
 } from "../productsApi";
 import ProductDialog from "../components/ProductDialog";
 import ProductMasterDialog from "../components/ProductMasterDialog";
+import ProductSpecDrawer from "../components/ProductSpecDrawer";
 import "../products.css";
 
 const EMPTY_PRODUCT = {
@@ -37,14 +38,15 @@ const EMPTY_PRODUCT = {
   description: "",
   active: true,
   isGlobal: false,
+  specifications: {},
 };
 
 export default function ProductsPage() {
   const { user } = useAuth();
   const { activeCompany } = useActiveCompany();
-  const isAdmin = user?.roles?.some((r) =>
-    typeof r === "string" ? r === "ROLE_ADMIN" || r === "ADMIN" : r.code === "ROLE_ADMIN" || r.name === "ADMIN"
-  ) ?? false;
+  const isAdmin = Array.isArray(user?.roles)
+    ? user.roles.some((r) => String(r?.code || r?.name || r).toUpperCase().includes("ADMIN"))
+    : false;
 
   const [page, setPage] = useState(1);
   const [pageSize] = useState(50);
@@ -52,9 +54,10 @@ export default function ProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [isGlobalOnly, setIsGlobalOnly] = useState(false);
 
-  // Dialog states
+  // Dialog & Drawer states
   const [productDraft, setProductDraft] = useState(null);
   const [masterOpen, setMasterOpen] = useState(false);
+  const [activeSpecProduct, setActiveSpecProduct] = useState(null);
 
   // Master queries
   const { data: categories = [], refetch: refetchCategories } = useGetCategoriesQuery(activeCompany?.id);
@@ -114,8 +117,8 @@ export default function ProductsPage() {
       {/* Page Header */}
       <div className="product-page-heading">
         <div>
-          <p className="access-kicker">Inventory &amp; Catalog</p>
-          <h1>Products</h1>
+          <p className="access-kicker">Inventory &amp; Technical Catalog</p>
+          <h1>Products &amp; Items</h1>
         </div>
         <div className="heading-actions">
           <Button variant="ghost" size="sm" onClick={() => setMasterOpen(true)}>
@@ -127,6 +130,13 @@ export default function ProductsPage() {
         </div>
       </div>
 
+      {/* Global Notice if no active company */}
+      {!activeCompany && (
+        <div className="product-global-notice">
+          <span>ℹ <strong>Global Master Mode:</strong> No company workspace is selected. You are viewing global catalog masters.</span>
+        </div>
+      )}
+
       {/* Toolbar: Search, Filters & Counter */}
       <div className="product-toolbar">
         <div className="product-toolbar__left">
@@ -134,7 +144,7 @@ export default function ProductsPage() {
             <span className="search-icon" aria-hidden="true">🔍</span>
             <input
               className="product-search-input"
-              placeholder="Search by code, name, brand, HSN..."
+              placeholder="Search by code, name, brand, HSN, specs..."
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
@@ -192,7 +202,7 @@ export default function ProductsPage() {
 
       {error && (
         <ErrorMessage style={{ marginBottom: "12px" }}>
-          {error?.data?.message || error?.error || "Error loading products."}
+          {error?.data?.message || error?.error || "Error loading products from server."}
         </ErrorMessage>
       )}
 
@@ -201,88 +211,145 @@ export default function ProductsPage() {
         <table className="product-table">
           <thead>
             <tr>
-              <th style={{ width: "130px" }}>Code</th>
-              <th>Product Name</th>
+              <th style={{ width: "140px" }}>Code</th>
+              <th>Product Name &amp; Brand</th>
               <th>Category</th>
               <th>Unit</th>
               <th>GST</th>
               <th style={{ textAlign: "right" }}>Purchase (₹)</th>
               <th style={{ textAlign: "right" }}>Selling (₹)</th>
-              <th style={{ textAlign: "center" }}>Reorder Lvl</th>
+              <th>Key Specs</th>
+              <th style={{ textAlign: "center" }}>Stock Lvl</th>
               <th>Scope</th>
               <th style={{ textAlign: "center" }}>Status</th>
-              <th style={{ width: "80px", textAlign: "right" }}>Actions</th>
+              <th style={{ width: "120px", textAlign: "right" }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={11} style={{ textAlign: "center", padding: "40px 0" }}>
+                <td colSpan={12} style={{ textAlign: "center", padding: "40px 0" }}>
                   <Loader />
                 </td>
               </tr>
             ) : products.length === 0 ? (
               <tr>
-                <td colSpan={11} style={{ textAlign: "center", padding: "36px 0", color: "#64748b" }}>
-                  No products found. Click <strong>+ Add Product</strong> to create your first item.
+                <td colSpan={12} style={{ textAlign: "center", padding: "36px 0", color: "#64748b" }}>
+                  No products found matching the criteria. Click <strong>+ Add Product</strong> to register an item.
                 </td>
               </tr>
             ) : (
-              products.map((p) => (
-                <tr key={p.id}>
-                  <td className="product-code-col">{p.productCode}</td>
-                  <td className="product-name-col" title={p.productName}>
-                    {p.productName}
-                    {p.brand && <small style={{ color: "#64748b", marginLeft: "6px" }}>({p.brand})</small>}
-                  </td>
-                  <td>{p.categoryName || "—"}</td>
-                  <td>{p.unitShortCode || p.unitName || "—"}</td>
-                  <td>
-                    {p.gstRate != null ? (
-                      <span className="badge-gst">{p.gstRate}%</span>
-                    ) : (
-                      "—"
-                    )}
-                  </td>
-                  <td className="product-price-col">{formatCurrency(p.purchasePrice)}</td>
-                  <td className="product-price-col product-price-selling">{formatCurrency(p.sellingPrice)}</td>
-                  <td style={{ textAlign: "center", fontFamily: "monospace" }}>{p.reorderLevel ?? 0}</td>
-                  <td>
-                    <span className={`scope-badge ${p.isGlobal ? "scope-badge--global" : "scope-badge--company"}`}>
-                      {p.isGlobal ? "Global" : p.companyName || "Company"}
-                    </span>
-                  </td>
-                  <td style={{ textAlign: "center" }}>
-                    <span
-                      className={`product-status-dot ${p.active ? "active" : "inactive"}`}
-                      title={p.active ? "Active" : "Inactive"}
-                    />
-                    <span style={{ fontSize: "11px", color: p.active ? "#15803d" : "#64748b" }}>
-                      {p.active ? "Active" : "Inactive"}
-                    </span>
-                  </td>
-                  <td style={{ textAlign: "right" }}>
-                    <div className="table-actions" style={{ justifyContent: "flex-end" }}>
-                      <button
-                        type="button"
-                        className="table-btn-icon"
-                        title="Edit Product"
-                        onClick={() => setProductDraft(p)}
+              products.map((p) => {
+                const specs = p.specifications || {};
+                const elec = specs.electricalSpecifications;
+                const phys = specs.physicalConstruction;
+
+                return (
+                  <tr key={p.id}>
+                    <td className="product-code-col">
+                      <span
+                        className="product-code-link"
+                        title="Click to view technical specifications"
+                        onClick={() => setActiveSpecProduct(p)}
                       >
-                        ✏
-                      </button>
-                      <button
-                        type="button"
-                        className="table-btn-icon danger"
-                        title="Deactivate Product"
-                        onClick={() => handleDeleteProduct(p)}
+                        {p.productCode}
+                      </span>
+                    </td>
+                    <td className="product-name-col">
+                      <div
+                        className="product-name-clickable"
+                        title={p.productName}
+                        onClick={() => setActiveSpecProduct(p)}
                       >
-                        🗑
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
+                        <strong>{p.productName}</strong>
+                        {p.brand && <small className="product-brand-tag">{p.brand}</small>}
+                      </div>
+                    </td>
+                    <td>
+                      <span>{p.categoryName || "—"}</span>
+                      {p.subcategoryName && (
+                        <small style={{ color: "#64748b", display: "block", fontSize: "10px" }}>
+                          {p.subcategoryName}
+                        </small>
+                      )}
+                    </td>
+                    <td>{p.unitShortCode || p.unitName || "—"}</td>
+                    <td>
+                      {p.gstRate != null ? (
+                        <span className="badge-gst">{p.gstRate}%</span>
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+                    <td className="product-price-col">{formatCurrency(p.purchasePrice)}</td>
+                    <td className="product-price-col product-price-selling">{formatCurrency(p.sellingPrice)}</td>
+                    <td>
+                      {elec ? (
+                        <span className="spec-quick-badge">
+                          {elec.ratedCurrent ? `${elec.ratedCurrent}${elec.ratedCurrentUnit || "A"}` : ""}
+                          {elec.poleConfiguration ? ` • ${elec.poleConfiguration}` : ""}
+                          {elec.utilizationCategory ? ` • ${elec.utilizationCategory}` : ""}
+                        </span>
+                      ) : phys?.contactMaterial ? (
+                        <span className="spec-quick-badge">{phys.contactMaterial}</span>
+                      ) : (
+                        <span style={{ color: "#cbd5e1" }}>—</span>
+                      )}
+                    </td>
+                    <td style={{ textAlign: "center", fontFamily: "monospace", fontSize: "11px" }}>
+                      {p.reorderLevel ? (
+                        <span title={`Reorder Level: ${p.reorderLevel} | Min: ${p.minimumStock}`}>
+                          {p.reorderLevel}
+                        </span>
+                      ) : (
+                        0
+                      )}
+                    </td>
+                    <td>
+                      <span className={`scope-badge ${p.isGlobal ? "scope-badge--global" : "scope-badge--company"}`}>
+                        {p.isGlobal ? "Global" : p.companyName || "Company"}
+                      </span>
+                    </td>
+                    <td style={{ textAlign: "center" }}>
+                      <span
+                        className={`product-status-dot ${p.active ? "active" : "inactive"}`}
+                        title={p.active ? "Active" : "Inactive"}
+                      />
+                      <span style={{ fontSize: "11px", color: p.active ? "#15803d" : "#64748b" }}>
+                        {p.active ? "Active" : "Inactive"}
+                      </span>
+                    </td>
+                    <td style={{ textAlign: "right" }}>
+                      <div className="table-actions" style={{ justifyContent: "flex-end" }}>
+                        <button
+                          type="button"
+                          className="table-btn-spec"
+                          title="View Specifications"
+                          onClick={() => setActiveSpecProduct(p)}
+                        >
+                          ⚡ Specs
+                        </button>
+                        <button
+                          type="button"
+                          className="table-btn-icon"
+                          title="Edit Product"
+                          onClick={() => setProductDraft(p)}
+                        >
+                          ✏
+                        </button>
+                        <button
+                          type="button"
+                          className="table-btn-icon danger"
+                          title="Deactivate Product"
+                          onClick={() => handleDeleteProduct(p)}
+                        >
+                          🗑
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
@@ -334,6 +401,18 @@ export default function ProductsPage() {
         />
       )}
 
+      {/* Product Specifications Drawer */}
+      {activeSpecProduct && (
+        <ProductSpecDrawer
+          product={activeSpecProduct}
+          onClose={() => setActiveSpecProduct(null)}
+          onEdit={(prod) => {
+            setActiveSpecProduct(null);
+            setProductDraft(prod);
+          }}
+        />
+      )}
+
       {/* Master Data Management Dialog */}
       {masterOpen && (
         <ProductMasterDialog
@@ -351,4 +430,3 @@ export default function ProductsPage() {
     </div>
   );
 }
-

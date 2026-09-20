@@ -148,6 +148,7 @@ public class ProductService {
                 .maximumStock(request.getMaximumStock())
                 .description(request.getDescription())
                 .active(request.getActive() != null ? request.getActive() : true)
+                .specifications(request.getSpecifications())
                 .build();
 
         return toResponse(productRepository.save(product));
@@ -219,6 +220,7 @@ public class ProductService {
         product.setMaximumStock(request.getMaximumStock());
         product.setDescription(request.getDescription());
         if (request.getActive() != null) product.setActive(request.getActive());
+        if (request.getSpecifications() != null) product.setSpecifications(request.getSpecifications());
 
         return toResponse(productRepository.save(product));
     }
@@ -260,8 +262,10 @@ public class ProductService {
                 .reorderLevel(product.getReorderLevel())
                 .minimumStock(product.getMinimumStock())
                 .maximumStock(product.getMaximumStock())
+                .currentStock(product.getCurrentStock())
                 .description(product.getDescription())
                 .active(product.getActive())
+                .specifications(product.getSpecifications())
                 .createdAt(product.getCreatedAt())
                 .updatedAt(product.getUpdatedAt())
                 .build();

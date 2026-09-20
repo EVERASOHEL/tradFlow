@@ -14,6 +14,10 @@ import PermissionsPage from "../features/access/pages/PermissionsPage";
 import CompaniesPage from "../features/companies/pages/CompaniesPage";
 import CompanySelectionPage from "../features/companies/pages/CompanySelectionPage";
 import ProductsPage from "../features/products/pages/ProductsPage";
+import PurchasesPage from "../features/purchases/pages/PurchasesPage";
+import ImportsPage from "../features/purchases/pages/ImportsPage";
+import SalesPage from "../features/sales/pages/SalesPage";
+import StockPage from "../features/stock/pages/StockPage";
 
 export default function AppRoutes() {
   return (
@@ -25,19 +29,25 @@ export default function AppRoutes() {
       <Route element={<ProtectedRoute />}>
         <Route path={ROUTES.SELECT_COMPANY} element={<CompanySelectionPage />} />
         <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
-        <Route element={<AdminRoute />}>
-          <Route element={<AccessLayout />}>
+
+        {/* Workspace & Settings Shell Layout */}
+        <Route element={<AccessLayout />}>
+          <Route path={ROUTES.PRODUCTS} element={<ProductsPage />} />
+          <Route path={ROUTES.PURCHASES} element={<PurchasesPage />} />
+          <Route path={ROUTES.IMPORTS} element={<ImportsPage />} />
+          <Route path={ROUTES.SALES} element={<SalesPage />} />
+          <Route path={ROUTES.STOCK} element={<StockPage />} />
+
+          {/* Admin only Settings routes */}
+          <Route element={<AdminRoute />}>
             <Route path={ROUTES.SETTINGS_OVERVIEW} element={<AccessOverviewPage />} />
             <Route path={ROUTES.SETTINGS_USERS} element={<UsersPage />} />
             <Route path={ROUTES.SETTINGS_ROLES} element={<RolesPage />} />
             <Route path={ROUTES.SETTINGS_PERMISSIONS} element={<PermissionsPage />} />
             <Route path={ROUTES.SETTINGS_COMPANIES} element={<CompaniesPage />} />
-            <Route path={ROUTES.PRODUCTS} element={<ProductsPage />} />
           </Route>
-          <Route path={ROUTES.USERS} element={<Navigate to={ROUTES.SETTINGS_USERS} replace />} />
         </Route>
-        {/* Every future protected feature route (company, product, sales…)
-            goes inside this same <ProtectedRoute> element. */}
+        <Route path={ROUTES.USERS} element={<Navigate to={ROUTES.SETTINGS_USERS} replace />} />
       </Route>
 
       <Route path={ROUTES.ROOT} element={<Navigate to={ROUTES.SETTINGS_OVERVIEW} replace />} />

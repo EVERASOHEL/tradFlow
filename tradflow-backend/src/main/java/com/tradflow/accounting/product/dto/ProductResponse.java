@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 @Getter
@@ -51,8 +52,10 @@ public class ProductResponse {
     private BigDecimal reorderLevel;
     private BigDecimal minimumStock;
     private BigDecimal maximumStock;
+    private BigDecimal currentStock;
     private String description;
     private Boolean active;
+    private Map<String, Object> specifications;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

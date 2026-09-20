@@ -12,5 +12,9 @@ export const ROUTES = {
   SETTINGS_PERMISSIONS: "/settings/permissions",
   SETTINGS_COMPANIES: "/settings/companies",
   PRODUCTS: "/products",
+  PURCHASES: "/purchases",
+  IMPORTS: "/imports",
+  SALES: "/sales",
+  STOCK: "/stock",
   ROOT: "/",
 };

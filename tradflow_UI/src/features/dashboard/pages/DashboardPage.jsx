@@ -59,18 +59,78 @@ export default function DashboardPage() {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <Link
+            to={ROUTES.PRODUCTS}
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "#0f766e",
+              textDecoration: "none",
+              padding: "5px 10px",
+              borderRadius: 5,
+              background: "#f0fdf4",
+              border: "1px solid #bbf7d0",
+              display: "flex",
+              alignItems: "center",
+              gap: 5,
+            }}
+          >
+            <span>📦</span>
+            <span>Products</span>
+          </Link>
+
+          <Link
+            to={ROUTES.PURCHASES}
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "#2563eb",
+              textDecoration: "none",
+              padding: "5px 10px",
+              borderRadius: 5,
+              background: "#eff6ff",
+              border: "1px solid #bfdbfe",
+              display: "flex",
+              alignItems: "center",
+              gap: 5,
+            }}
+          >
+            <span>🧾</span>
+            <span>Purchases</span>
+          </Link>
+
+          <Link
+            to={ROUTES.IMPORTS}
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "#d97706",
+              textDecoration: "none",
+              padding: "5px 10px",
+              borderRadius: 5,
+              background: "#fffbeb",
+              border: "1px solid #fde68a",
+              display: "flex",
+              alignItems: "center",
+              gap: 5,
+            }}
+          >
+            <span>🚢</span>
+            <span>China Imports (LCL)</span>
+          </Link>
+
           {isAdmin && (
             <Link
               to={ROUTES.SETTINGS_OVERVIEW}
               style={{
                 fontSize: 12,
                 fontWeight: 600,
-                color: "#2563eb",
+                color: "#475569",
                 textDecoration: "none",
                 padding: "5px 10px",
                 borderRadius: 5,
-                background: "#eff6ff",
-                border: "1px solid #dbeafe",
+                background: "#f1f5f9",
+                border: "1px solid #e2e8f0",
               }}
             >
               Settings &amp; Access →
@@ -191,6 +251,66 @@ export default function DashboardPage() {
             marginBottom: 20,
           }}
         >
+          <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 8, padding: "16px 18px", borderTop: "3px solid #0f766e" }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Inventory &amp; Catalog</span>
+            <strong style={{ display: "block", fontSize: 20, color: "#0f172a", margin: "6px 0 2px" }}>Products</strong>
+            <small style={{ color: "#64748b", fontSize: 11, display: "block", marginBottom: 10 }}>Master items, technical specs &amp; pricing</small>
+            <Link
+              to={ROUTES.PRODUCTS}
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                color: "#0f766e",
+                textDecoration: "none",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+              }}
+            >
+              Open Products Catalog →
+            </Link>
+          </div>
+
+          <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 8, padding: "16px 18px", borderTop: "3px solid #2563eb" }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>Procurement &amp; Payables</span>
+            <strong style={{ display: "block", fontSize: 20, color: "#0f172a", margin: "6px 0 2px" }}>Purchases</strong>
+            <small style={{ color: "#64748b", fontSize: 11, display: "block", marginBottom: 10 }}>Vendor invoices, GST breakdowns &amp; balances</small>
+            <Link
+              to={ROUTES.PURCHASES}
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                color: "#2563eb",
+                textDecoration: "none",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+              }}
+            >
+              Manage Purchases →
+            </Link>
+          </div>
+
+          <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 8, padding: "16px 18px", borderTop: "3px solid #d97706" }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>International Logistics</span>
+            <strong style={{ display: "block", fontSize: 20, color: "#0f172a", margin: "6px 0 2px" }}>China Imports</strong>
+            <small style={{ color: "#64748b", fontSize: 11, display: "block", marginBottom: 10 }}>LCL shipments, RMB conversions &amp; landed costs</small>
+            <Link
+              to={ROUTES.IMPORTS}
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                color: "#d97706",
+                textDecoration: "none",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+              }}
+            >
+              Track LCL Shipments →
+            </Link>
+          </div>
+
           <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 8, padding: "16px 18px", borderTop: "3px solid #2563eb" }}>
             <span style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>General Ledger</span>
             <strong style={{ display: "block", fontSize: 20, color: "#0f172a", margin: "6px 0 2px" }}>Active</strong>

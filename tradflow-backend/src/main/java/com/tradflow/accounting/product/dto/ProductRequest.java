@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.UUID;
 
 @Getter
@@ -53,5 +54,6 @@ public class ProductRequest {
     private BigDecimal maximumStock;
     private String description;
     private Boolean active;
+    private Map<String, Object> specifications;
 }
 

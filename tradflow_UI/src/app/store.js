@@ -6,6 +6,9 @@ import { usersApi } from "../features/users/usersApi";
 import { accessApi } from "../features/access/accessApi";
 import { companiesApi } from "../features/companies/companiesApi";
 import { productsApi } from "../features/products/productsApi";
+import { purchasesApi } from "../features/purchases/purchasesApi";
+import { salesApi } from "../features/sales/salesApi";
+import { stockApi } from "../features/stock/stockApi";
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +19,9 @@ export const store = configureStore({
     [accessApi.reducerPath]: accessApi.reducer,
     [companiesApi.reducerPath]: companiesApi.reducer,
     [productsApi.reducerPath]: productsApi.reducer,
+    [purchasesApi.reducerPath]: purchasesApi.reducer,
+    [salesApi.reducerPath]: salesApi.reducer,
+    [stockApi.reducerPath]: stockApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -23,6 +29,9 @@ export const store = configureStore({
       usersApi.middleware,
       accessApi.middleware,
       companiesApi.middleware,
-      productsApi.middleware
+      productsApi.middleware,
+      purchasesApi.middleware,
+      salesApi.middleware,
+      stockApi.middleware
     ),
 });

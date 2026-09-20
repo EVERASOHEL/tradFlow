@@ -20,4 +20,9 @@ export const API_ENDPOINTS = {
   companies: "/companies",
   products: "/products",
   productMasters: "/product-masters",
+  parties: "/parties",
+  imports: "/imports",
+  purchases: "/purchases",
+  sales: "/sales",
+  stock: "/stock",
 };
